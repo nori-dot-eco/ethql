@@ -1,6 +1,6 @@
 import { testGraphql } from '../utils';
 
-const { execQuery } = testGraphql({ configOverride: { jsonrpc: 'https://ropsten.infura.io' } });
+const { execQuery } = testGraphql({ optsOverride: { config: { jsonrpc: 'https://ropsten.infura.io' } } });
 const contractAddress = '"0x9c72Eda6de2F67F3B3DbcA3788Aa307AEF1e0Cef"';
 
 /*
@@ -34,16 +34,41 @@ contract tests {
 }
 */
 
+test('account->storage: returns null when given a null address', async () => {
+  const query = `
+    {
+      transaction(hash: "0x4ed6c2d00498d9ed88583bfd49469a583bbe33cd47e257756c17b23f2ee7798c") {
+        to {
+          storage {
+            value(at: 0)
+          }
+        }
+      }
+    }`;
+
+  const expected = {
+    data: {
+      transaction: {
+        to: {
+          storage: null,
+        },
+      },
+    },
+  };
+
+  const result = await execQuery(query);
+  expect(result).toEqual(expected);
+});
+
 test('account->storage: retrieve basic value from storage', async () => {
   const query = `
-  {
-    account(address: ${contractAddress}) {
-      storage {
-        value(at: 0)
+    {
+      account(address: ${contractAddress}) {
+        storage {
+          value(at: 0)
+        }
       }
-    }
-  }
-      `;
+    }`;
 
   const expected = {
     data: {
