@@ -11,16 +11,22 @@ jobs:
           - v1-dependencies-{{ checksum "yarn.lock" }}
           - v1-dependencies-
       - run:
-          name: Install dependencies
+          name: Install base dependencies
           command: yarn install
+      - run:
+          name: Install package dependencies
+          command: yarn bootstrap
       - save_cache:
           key: v1-dependencies-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
             - ~/.cache/yarn
+      - run:
+          name: Build Modules
+          command: yarn build:ts
       - run: 
           name: Run tests
-          command: yarn test
+          command: yarn test:ci
       - run:
           name: Build ethql
           command: yarn build:ts
